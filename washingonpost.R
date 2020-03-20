@@ -2,11 +2,6 @@ library(jsonlite)
 library(tidyverse)
 library(tidytext)
 library(topicmodels)
-
-
-## read in simple json file, flatten to data frame
-
-
 library(ndjson)
 
 validate("/Users/jquan42/Downloads/wapo/wapotest/wapo_test/articles.json20200101.json")
@@ -29,18 +24,13 @@ tidy_json2 <- tidy_json %>%
          region = address.region,
          locality = address.locality,
          content_category = additional_properties.content_category) 
-  
 
-tidy_json2 <- unite(tidy_json2, "content", 9:ncol(tidy_json2), na.rm = TRUE)
-  
-  
+
+tidy_json2 <- unite(tidy_json2, "content", 9:ncol(tidy_json2), 
+                    na.rm = TRUE, remove = FALSE, sep = "")
+
+
 write_csv(tidy_json2, path = "./tidy_wapo.csv")
-
-
-
-
-#######3 from jq --> tidyverse ## Needs work
-
 
 
 # text <- mydf %>% select(contents.content)
