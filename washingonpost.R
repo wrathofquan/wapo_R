@@ -4,7 +4,7 @@ library(tidytext)
 library(topicmodels)
 library(ndjson)
 
-validate("/Users/jquan42/Downloads/wapo/wapotest/wapo_test/articles.json20200101.json")
+validate("/Users/jquan42/Downloads/wapo/wapotest/wapo_test/articles.20200101.json")
 tidy_json <- stream_in("/Users/jquan42/Downloads/wapo/wapotest/wapo_test/articles.20200101.json", cls = "tbl")
 
 str(tidy_json) 
@@ -24,12 +24,12 @@ tidy_json2 <- tidy_json %>%
          region = address.region,
          locality = address.locality,
          content_category = additional_properties.content_category) 
-
+  
 
 tidy_json2 <- unite(tidy_json2, "content", 9:ncol(tidy_json2), 
-                    na.rm = TRUE, remove = FALSE, sep = "")
-
-
+                    na.rm = TRUE, remove = TRUE, sep = " ")
+  
+  
 write_csv(tidy_json2, path = "./tidy_wapo.csv")
 
 
