@@ -1,8 +1,9 @@
-library(jsonlite)
+#library(jsonlite)
 library(tidyverse)
-library(tidytext)
-library(topicmodels)
+#library(tidytext)
+#library(topicmodels)
 library(ndjson)
+library(lubridate)
 
 validate("/Users/jquan42/Downloads/wapo/wapotest/wapo_test/articles.20200101.json")
 tidy_json <- stream_in("/Users/jquan42/Downloads/wapo/wapotest/wapo_test/articles.20200101.json", cls = "tbl")
@@ -10,27 +11,31 @@ tidy_json <- stream_in("/Users/jquan42/Downloads/wapo/wapotest/wapo_test/article
 str(tidy_json) 
 
 tidy_json2 <- tidy_json %>% 
-  select(publish_date, credits.by.0.additional_properties.original.firstName,
-         credits.by.0.additional_properties.original.lastName, 
-         additional_properties.commercial_node,
+  select(`_id`, publish_date, credits.by.0.additional_properties.original.firstName,
+         credits.by.0.additional_properties.original.lastName,
          additional_properties.content_category,
          address.country_name,
          address.region, address.locality,
          matches("content_elements.*.content")) %>% 
-  rename(first_name = credits.by.0.additional_properties.original.firstName,
+  rename(id = `_id`,
+         first_name = credits.by.0.additional_properties.original.firstName,
          last_name = credits.by.0.additional_properties.original.lastName,
-         commercial_node = additional_properties.commercial_node,
          country = address.country_name,
          region = address.region,
          locality = address.locality,
          content_category = additional_properties.content_category) 
-  
 
-tidy_json2 <- unite(tidy_json2, "content", 9:ncol(tidy_json2), 
+tidy_json2 <- unite(tidy_json2 , "content", 9:ncol(tidy_json2), 
                     na.rm = TRUE, remove = TRUE, sep = " ")
   
   
-write_csv(tidy_json2, path = "./tidy_wapo.csv")
+tidy_json3 <- mutate(tidy_json2, publish_date = parse_date_time(publish_date, c("ymd", "ymd HMS")))
+tidy_json3<-  mutate(tidy_json2, publish_date = as.Date(publish_date))
+
+tidy_json_distinct <- tidy_json3 %>% group_by(id) %>% distinct()
+
+  
+write_csv(tidy_json_distinct, path = "./tidy_wapo.csv")
 
 
 # text <- mydf %>% select(contents.content)
